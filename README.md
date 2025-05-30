@@ -29,18 +29,22 @@ Teknik: Digunakan algoritma Singular Value Decomposition (SVD), yaitu teknik unt
 # Data Understanding
 Dataset yang digunakan adalah dataset Best Books of the Decade: 2020s yang tersedia di Kaggle: https://www.kaggle.com/datasets/valakhorasani/best-books-of-the-decade-2020s
 Variabel Pada Dataset:
-- Dataset Buku: 2.393 entri data
+- Dataset Buku: 2.329 entri data
 -- Index: kode unik setiap buku.
 -- Book Name: judul dari buku.
 -- Author: penulis buku.
 -- Rating: rata-rata ulasan yang diberikan user (1-5).
 -- Number of Votes: total vote untuk buku.
 -- Score: jumlah score dari ulasan buku dan total vote buku.
+-- Tidak ada missing values (null) artinya data siap dianalisis lebih lanjut.
+-- Tidak adanya duplikasi data artinya data sudah sesuai.
 
 - Dataset Users: 600.000 entri data
 -- userId: kode unik setiap user.
 -- bookIndex: kode unik setiap buku dari dataset buku.
 -- score: score atau ulasan yang diberikan user untuk setiap buku (1-5).
+-- Tidak adanya missing values (null) dan data siap dianalisis lebih lanjut.
+-- Terdapat duplikasi data sebanyak 175 entri data.
 
 # Exploratory Data Analysis (EDA)
 - Distribusi rating yang dibaerikan user pada setiap buku
@@ -48,11 +52,13 @@ Variabel Pada Dataset:
 
 # Data Preparation
 Langkah-langkah yang dilakukan:
-- Pembersihan data: Menghapus data duplikat dan menangani missing values, jika tidak ditangani dapat menyebabkan bias dalam ahsi rekomendasi.
-- Mengubah kolom Index pada books_df menjadi bookIndex agar selaras dengan users_df.
-- Pembuatan kolom content untuk Content-Based Filtering: Dibuat dengan menggabungkan informasi dari kolom Book Name dan Author menjadi satu string teks tunggal untuk setiap buku. Ini dilakukan pada sampel data books_cb_sample yang digunakan untuk content-based filtering.
-- Filter rating eksplisit: Baris data dari ratings_df disimpan dalam dataframe baru ratings_explicit_df.
-- Filtering untuk Mengurangi Sparsity: Dilakukan dua tahap pemfilteran pada full_data_explicit untuk mengurangi masalah sparsity data, hanya pengguna yang telah memberikan minimal 5 rating eksplisit yang dipertahankan.
+- Menghapus 175 data duplikat dari users_df untuk memastikan setiap interaksi pengguna unik.
+- Mengubah nama kolom Index pada books_df menjadi bookIndex agar dapat digabungkan dengan users_df.
+- Membuat kolom content dengan menggabungkan kolom Book Name dan Author untuk setiap baris di books_cb_sample.
+- Menggunakan TfidfVectorizer dari Scikit-learn dengan stop_words='english' dan ngram_range=(1,2) untuk mengubah kolom content menjadi vektor numerik.
+- Menyimpan hanya baris dengan rating eksplisit (bukan implicit feedback) ke dalam ratings_explicit_df.
+- Menggabungkan ratings_explicit_df dan books_df berdasarkan bookIndex untuk membuat full_data_explicit, yang digunakan pada model Collaborative Filtering.
+- Menyaring pengguna yang memberikan kurang dari 5 ulasan, untuk mengurangi sparsity dan meningkatkan kualitas prediksi.
 ```
 # Inisialisasi TF-IDF Vectorizer
 tfidf = TfidfVectorizer(stop_words='english', ngram_range=(1,2))
@@ -60,6 +66,9 @@ print("Menerapkan TF-IDF pada sample")
 tfidf_matrix_sample = tfidf.fit_transform(books_cb_sample['content'])
 print("Shape of TF-IDF matrix (sample):", tfidf_matrix_sample.shape)
 ```
+- Inisialisasi Reader, menentukan skala rating dari 1 sampai 5.
+- Dataset Conversion. mengubah filtered_ratings_cf menjadi format Surprise menggunakan Dataset.load_from_df().
+- Train-Test Split, membagi data ke dalam 80% data latih dan 20% data uji menggunakan train_test_split dari surprise.model_selection.
 
 # Modeling
 1. Content-Based Filtering
@@ -121,13 +130,35 @@ Kekurangan Pendekatan Collaborative Filtering (SVD):
 
 # Evaluation
 1. Content-Based Filtering
-- Menyajikan evaluasi dari sistem content-based filtering yang sederhana, di mana sistem memberikan rekomendasi buku berdasarkan kesamaan konten dengan buku input "Glassheart".
-- Hasilnya menampilkan daftar buku yang direkomendasikan beserta skor kesamaan mereka. 
-- Beberapa judul yang direkomendasikan seperti "Majesty (American Royals, #2)" dan "The Invisible Life of Addie LaRue" terlihat terkait skor kesamaan yang relatif rendah (di bawah 0.2) untuk sebagian besar rekomendasi menunjukkan bahwa metode analisis konten atau perhitungan kesamaan yang digunakan mungkin perlu ditingkatkan untuk menghasilkan rekomendasi yang lebih relevan atau serupa secara kuat.
+- Evaluasi metode CBF dilakukan dengan melihat hasil rekomendasi berdasarkan input buku. Misalnya, saat diminta rekomendasi berdasarkan buku "Glassheart", sistem menghasilkan rekomendasi seperti:
+      bookIndex                                          Book Name  \ Author              similarity_score
+2020       2021                      Majesty (American Royals, #2)    Katharine McGee     0.136359
+1698       1699  Katharine Parr, the Sixth Wife (Six Tudor Quee...    Alison Weir         0.104207
+0             1                  The Invisible Life of Addie LaRue    Victoria Schwab     0.000000
+1             2  The House in the Cerulean Sea (Cerulean Chroni...    T.J. Klune          0.000000
+2             3                                  Project Hail Mary    Andy Weir           0.000000
+        
+- Catatan: Nilai skor kemiripan yang relatif rendah (di bawah 0.2) menunjukkan bahwa fitur teks judul dan penulis yang digunakan dalam representasi TF-IDF mungkin kurang mencerminkan kesamaan semantik secara kuat. Hal ini menunjukkan perlunya pengayaan fitur, misalnya dengan menggunakan deskripsi buku atau genre.
+Kelebihan:
+- Dapat memberikan rekomendasi meskipun buku belum pernah dirating pengguna lain.
+- Hasil bisa dijelaskan secara transparan ("mirip judul dan penulis").
+
+Kekurangan:
+- Terbatas pada fitur konten yang sederhana.
+- Rekomendasi cenderung homogen dan bisa menyebabkan over-specialization.
 
 2. Collaborative Filtering
-- Metrik evaluasi untuk model Collaborative Filtering menggunakan metode SVD, dengan nilai RMSE sebesar 1.4531 dan MAE sebesar 1.2536.
-- Nilai-nilai ini mengindikasikan performa model dalam memprediksi rating pengguna; secara rata-rata, prediksi rating model SVD menyimpang sekitar 1.4531 poin dari rating sebenarnya (dengan penalti lebih besar untuk kesalahan besar) dan memiliki rata-rata selisih absolut 1.2536 poin dari rating sebenarnya.
-- Dalam konteks skala rating 1-5, semakin rendah nilai RMSE dan MAE, semakin baik kemampuan model dalam memprediksi rating, sehingga nilai-nilai ini memberikan gambaran kuantitatif tentang akurasi rekomendasi yang dihasilkan oleh model SVD ini.
+- Model SVD dievaluasi menggunakan dua metrik utama:
+-- RMSE (Root Mean Squared Error): 1.4531
+-- MAE (Mean Absolute Error): 1.2536
+- Dalam konteks skala rating 1–5, nilai ini menunjukkan prediksi model menyimpang ±1.25 poin dari rating sebenarnya. Ini dapat dianggap cukup tinggi, yang menunjukkan potensi perbaikan dengan teknik tambahan seperti tuning hyperparameter atau matrix factorization lanjutan.
+
+Kelebihan:
+- Mampu menangkap pola kompleks antar pengguna dan item.
+- Tidak memerlukan fitur konten dari buku.
+
+Kekurangan:
+- Tidak bisa menangani item atau pengguna baru (cold start).
+- Kurang transparan dalam menjelaskan alasan rekomendasi.
 
 Sistem rekomendasi yang dibangun dari dataset ini berhasil memberikan rekomendasi buku yang relevan bagi pengguna berdasarkan judul, author, dan rating. Dengan pengembangan lebih lanjut seperti penggunaan matrix factorization atau deep learning, kualitas rekomendasi bisa lebih ditingkatkan lagi.
