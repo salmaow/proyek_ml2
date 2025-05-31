@@ -30,21 +30,21 @@ Teknik: Digunakan algoritma Singular Value Decomposition (SVD), yaitu teknik unt
 Dataset yang digunakan adalah dataset Best Books of the Decade: 2020s yang tersedia di Kaggle: https://www.kaggle.com/datasets/valakhorasani/best-books-of-the-decade-2020s
 Variabel Pada Dataset:
 - Dataset Buku: 2.329 entri data
--- Index: kode unik setiap buku.
--- Book Name: judul dari buku.
--- Author: penulis buku.
--- Rating: rata-rata ulasan yang diberikan user (1-5).
--- Number of Votes: total vote untuk buku.
--- Score: jumlah score dari ulasan buku dan total vote buku.
--- Tidak ada missing values (null) artinya data siap dianalisis lebih lanjut.
--- Tidak adanya duplikasi data artinya data sudah sesuai.
+- Index: kode unik setiap buku.
+- Book Name: judul dari buku.
+- Author: penulis buku.
+- Rating: rata-rata ulasan yang diberikan user (1-5).
+- Number of Votes: total vote untuk buku.
+- Score: jumlah score dari ulasan buku dan total vote buku.
+- Tidak ada missing values (null) artinya data siap dianalisis lebih lanjut.
+- Tidak adanya duplikasi data artinya data sudah sesuai.
 
 - Dataset Users: 600.000 entri data
--- userId: kode unik setiap user.
--- bookIndex: kode unik setiap buku dari dataset buku.
--- score: score atau ulasan yang diberikan user untuk setiap buku (1-5).
--- Tidak adanya missing values (null) dan data siap dianalisis lebih lanjut.
--- Terdapat duplikasi data sebanyak 175 entri data.
+- userId: kode unik setiap user.
+- bookIndex: kode unik setiap buku dari dataset buku.
+- score: score atau ulasan yang diberikan user untuk setiap buku (1-5).
+- Tidak adanya missing values (null) dan data siap dianalisis lebih lanjut.
+- Terdapat duplikasi data sebanyak 175 entri data.
 
 # Exploratory Data Analysis (EDA)
 - Distribusi rating yang dibaerikan user pada setiap buku
