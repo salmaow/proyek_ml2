@@ -52,13 +52,16 @@ Variabel Pada Dataset:
 
 # Data Preparation
 Langkah-langkah yang dilakukan:
-- Menghapus 175 data duplikat dari users_df untuk memastikan setiap interaksi pengguna unik.
 - Mengubah nama kolom Index pada books_df menjadi bookIndex agar dapat digabungkan dengan users_df.
-- Membuat kolom content dengan menggabungkan kolom Book Name dan Author untuk setiap baris di books_cb_sample.
-- Menggunakan TfidfVectorizer dari Scikit-learn dengan stop_words='english' dan ngram_range=(1,2) untuk mengubah kolom content menjadi vektor numerik.
+- Menghapus 175 data duplikat dari users_df untuk memastikan setiap interaksi pengguna unik.
 - Menyimpan hanya baris dengan rating eksplisit (bukan implicit feedback) ke dalam ratings_explicit_df.
 - Menggabungkan ratings_explicit_df dan books_df berdasarkan bookIndex untuk membuat full_data_explicit, yang digunakan pada model Collaborative Filtering.
-- Menyaring pengguna yang memberikan kurang dari 5 ulasan, untuk mengurangi sparsity dan meningkatkan kualitas prediksi.
+- Menyaring pengguna yang memberikan kurang dari 3 ulasan, untuk mengurangi sparsity dan meningkatkan kualitas prediksi.
+- Inisialisasi Reader, menentukan skala rating dari 1 sampai 5.
+- Train-Test Split, membagi data ke dalam 80% data latih dan 20% data uji menggunakan train_test_split dari surprise.model_selection.
+- Membuat kolom content dengan menggabungkan kolom Book Name dan Author untuk setiap baris di books_cb_sample.
+- Menggunakan TfidfVectorizer dari Scikit-learn dengan stop_words='english' dan ngram_range=(1,2) untuk mengubah kolom content menjadi vektor numerik.
+
 ```
 # Inisialisasi TF-IDF Vectorizer
 tfidf = TfidfVectorizer(stop_words='english', ngram_range=(1,2))
@@ -66,9 +69,6 @@ print("Menerapkan TF-IDF pada sample")
 tfidf_matrix_sample = tfidf.fit_transform(books_cb_sample['content'])
 print("Shape of TF-IDF matrix (sample):", tfidf_matrix_sample.shape)
 ```
-- Inisialisasi Reader, menentukan skala rating dari 1 sampai 5.
-- Dataset Conversion. mengubah filtered_ratings_cf menjadi format Surprise menggunakan Dataset.load_from_df().
-- Train-Test Split, membagi data ke dalam 80% data latih dan 20% data uji menggunakan train_test_split dari surprise.model_selection.
 
 # Modeling
 1. Content-Based Filtering
@@ -139,13 +139,25 @@ Kekurangan Pendekatan Collaborative Filtering (SVD):
 2             3                                  Project Hail Mary    Andy Weir           0.000000
         
 - Catatan: Nilai skor kemiripan yang relatif rendah (di bawah 0.2) menunjukkan bahwa fitur teks judul dan penulis yang digunakan dalam representasi TF-IDF mungkin kurang mencerminkan kesamaan semantik secara kuat. Hal ini menunjukkan perlunya pengayaan fitur, misalnya dengan menggunakan deskripsi buku atau genre.
+
+Evaluasi untuk Content-Based Filtering (K=5):
+- Precision@K      : 0.16436238729068267
+-- Artinya: Sistem berhasil menemukan sekitar 35% dari total buku relevan (berdasarkan asumsi pengarang sama) hanya dalam 5 rekomendasi.
+-- Ini cukup bagus untuk model CBF karena sistem hanya menggunakan informasi konten (judul + penulis), bukan data pengguna.
+- Recall@K         : 0.3509025610141969
+-- Artinya: Dari 5 rekomendasi yang diberikan, hanya sekitar 16% yang benar-benar relevan.
+-- Ini menunjukkan bahwa sistem masih banyak memberikan rekomendasi yang tidak dianggap relevan (false positives).
+- NDCG@K           : 0.37398024903392013
+-- Menunjukkan bahwa item relevan kadang muncul di urutan atas, tetapi belum konsisten.
+-- Jika mendekati 1, berarti sistem benar-benar menempatkan item relevan di posisi atas, tapi 0.37 menunjukkan masih kurang optimal.
+
 Kelebihan:
-- Dapat memberikan rekomendasi meskipun buku belum pernah dirating pengguna lain.
-- Hasil bisa dijelaskan secara transparan ("mirip judul dan penulis").
+- Recall cukup tinggi → sistem bisa menemukan item relevan dalam top-5.
+- CBF mudah diterapkan tanpa data pengguna.
 
 Kekurangan:
-- Terbatas pada fitur konten yang sederhana.
-- Rekomendasi cenderung homogen dan bisa menyebabkan over-specialization.
+- Precision rendah → sistem memberikan banyak rekomendasi yang tidak relevan.
+- NDCG sedang → urutan rekomendasi masih bisa diperbaiki.
 
 2. Collaborative Filtering
 - Model SVD dievaluasi menggunakan dua metrik utama:
