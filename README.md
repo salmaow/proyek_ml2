@@ -56,10 +56,6 @@ Langkah-langkah yang dilakukan:
 - Menghapus 175 data duplikat dari users_df untuk memastikan setiap interaksi pengguna unik.
 - Menyimpan hanya baris dengan rating eksplisit (bukan implicit feedback) ke dalam ratings_explicit_df.
 - Menggabungkan ratings_explicit_df dan books_df berdasarkan bookIndex untuk membuat full_data_explicit, yang digunakan pada model Collaborative Filtering.
-- Menyaring pengguna yang memberikan kurang dari 3 ulasan, untuk mengurangi sparsity dan meningkatkan kualitas prediksi.
-- Inisialisasi Reader, menentukan skala rating dari 1 sampai 5.
-- Train-Test Split, membagi data ke dalam 80% data latih dan 20% data uji menggunakan train_test_split dari surprise.model_selection.
-- Membuat kolom content dengan menggabungkan kolom Book Name dan Author untuk setiap baris di books_cb_sample.
 - Menggunakan TfidfVectorizer dari Scikit-learn dengan stop_words='english' dan ngram_range=(1,2) untuk mengubah kolom content menjadi vektor numerik.
 
 ```
@@ -69,6 +65,10 @@ print("Menerapkan TF-IDF pada sample")
 tfidf_matrix_sample = tfidf.fit_transform(books_cb_sample['content'])
 print("Shape of TF-IDF matrix (sample):", tfidf_matrix_sample.shape)
 ```
+- Menyaring pengguna yang memberikan kurang dari 3 ulasan, untuk mengurangi sparsity dan meningkatkan kualitas prediksi.
+- Inisialisasi Reader, menentukan skala rating dari 1 sampai 5.
+- Train-Test Split, membagi data ke dalam 80% data latih dan 20% data uji menggunakan train_test_split dari surprise.model_selection.
+- Membuat kolom content dengan menggabungkan kolom Book Name dan Author untuk setiap baris di books_cb_sample.
 
 # Modeling
 1. Content-Based Filtering
@@ -106,19 +106,17 @@ Kekurangan Pendekatan Content-Based:
 - Pembagian Data: Dataset dibagi menjadi set pelatihan (80%) dan set pengujian (20%) menggunakan fungsi train_test_split dari surprise.model_selection.
 - Model SVD: Algoritma SVD (Singular Value Decomposition) dari library surprise dipilih sebagai model. SVD adalah teknik faktorisasi matriks yang populer untuk collaborative filtering. Parameter yang digunakan dalam notebook adalah: n_factors=50 (jumlah faktor laten), n_epochs=20 (jumlah iterasi pelatihan), lr_all=0.005 (learning rate), dan reg_all=0.02 (faktor regularisasi).
 - Evaluasi: Setelah pelatihan, model dievaluasi pada set pengujian untuk mengukur seberapa baik ia memprediksi rating yang sebenarnya. Metrik yang digunakan adalah RMSE dan MAE.
-- Fungsi Rekomendasi: Fungsi get_collaborative_filtering_recommendations(user_id, N=10) dibuat untuk menghasilkan top-N rekomendasi bagi pengguna tertentu. Fungsi ini:
+- Fungsi Rekomendasi: Fungsi get_collaborative_filtering_recommendations(user_id, N=5) dibuat untuk menghasilkan top-N rekomendasi bagi pengguna tertentu. Fungsi ini:
 - Mengidentifikasi semua buku dalam filtered_ratings_cf yang belum pernah dirating oleh user_id target.
 - Menggunakan model SVD yang telah dilatih untuk memprediksi rating pengguna target terhadap buku-buku yang belum dirating tersebut.
 - Mengurutkan buku-buku tersebut berdasarkan prediksi rating (estimasi) secara menurun.
 - Mengembalikan N buku teratas beserta detailnya (ISBN, Judul, Penulis) dan prediksi ratingnya.
 - Hasil (Top-N Recommendation): Contoh output untuk userId: 65674, N=5:
-   bookIndex                                          Book Name  \ Author                  estimated_rating 
-0        502                                             Hester    Laurie Lico Albanese    4.006287
-1        401          The Golden Enclaves (The Scholomance, #3)    Naomi Novik             3.929986
-2        713                                   The Holiday Swap    Maggie Knox             3.899197
-3       2293                      The Ruthless (Queen Crow, #2)    J. Bree                 3.890364
-4       1173  The Jakarta Method: Washington's Anticommunist...    Vincent Bevins          3.884843
-
+   bookIndex                                          Book Name  \ Author                    estimated_rating
+0       1704                     Your Brain is Always Listening    Daniel G. Amen            3.945382
+1       2241  If It Sounds Like a Quack...: A Journey to the...    Matthew Hongoltz-Hetling  3.745854
+2       2275  A Queen of Ruin (Deliciously Dark Fairytales, #4)    K.F. Breene               3.703566
+               
 Kelebihan Pendekatan Collaborative Filtering (SVD):
 - Mampu menemukan pola preferensi yang kompleks dan tersembunyi dari data interaksi pengguna-item.
 - Tidak memerlukan pengetahuan domain tentang item yang direkomendasikan.
