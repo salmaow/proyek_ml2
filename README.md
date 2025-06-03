@@ -1,11 +1,13 @@
 # Laporan Proyek Machine Learning – Salma Oktarina
 
 ## Project Overview
-Membaca buku merupakan kegiatan yang dapat meningkatkan wawasan dan memperkaya pola pikir. Namun, banyaknya pilihan buku yang tersedia di era digital membuat pengguna kesulitan memilih buku yang sesuai dengan minat mereka. Oleh karena itu, sistem rekomendasi buku menjadi solusi penting untuk membantu pengguna menemukan buku yang relevan dengan preferensi mereka.
-Masalah ini penting diselesaikan karena dapat meningkatkan kepuasan pengguna dalam membaca dan juga membantu penulis serta penerbit untuk menjangkau pembaca potensial. Selain itu, sistem rekomendasi yang baik juga dapat memperpanjang umur konsumsi buku yang berkualitas.
+Salah satu permasalahan yang sering dijumpai oleh para pembaca buku adalah menentukan buku-buku yang akan mereka baca selanjutnya. Kesulitan pembaca buku dalam menentukan buku yang akan dibaca disebabkan oleh banyaknya jumlah buku dan beragamnya jumlah buku yang ada. Solusi untuk permasalahan yang dialami pembaca adalah dengan menerapkan sistem rekomendasi buku yang dapat memberikan rekomendasi buku kepada pembaca buku [1].
+Sistem rekomendasi dapat digunakan untuk memprediksi barang tertentu yang disukai oleh pengguna atau untuk mengidentifikasi beberapa barang yang mungkin disukai oleh pengguna tertentu [2].
+Dalam proyek ini, dibangun dua pendekatan sistem rekomendasi: Content-Based Filtering, yang merekomendasikan buku berdasarkan kemiripan atribut kontennya seperti judul dan penulis; dan Collaborative Filtering, yang memanfaatkan pola interaksi pengguna dengan item untuk menghasilkan rekomendasi. Dataset yang digunakan adalah Best Books of the Decade: 2020s dari Kaggle, yang berisi informasi tentang ribuan buku populer beserta rating dari pengguna.
 
 # Referensi:
-Andrew Hans Ritdrix, Panji Wisnu Wirawan. Sistem Rekomendasi Buku MenggunakanMetode Item-Based Collaborative Filtering (hal. 24–31). urnal Masyarakat Informatika.
+[1] Andrew Hans Ritdrix, Panji Wisnu Wirawan. Sistem Rekomendasi Buku MenggunakanMetode Item-Based Collaborative Filtering (hal. 24–31). urnal Masyarakat Informatika.
+[2] Deshpande, M., & Karypis, G. (2004). Item Based Top-N Recommendation Algorithms. ACM Transactions on Information Systems (TOIS) Volume 22, 143-177. 
 
 # Business Understanding
 ## Problem Statements
@@ -128,46 +130,72 @@ Kekurangan Pendekatan Collaborative Filtering (SVD):
 
 # Evaluation
 1. Content-Based Filtering
-- Evaluasi metode CBF dilakukan dengan melihat hasil rekomendasi berdasarkan input buku. Misalnya, saat diminta rekomendasi berdasarkan buku "Glassheart", sistem menghasilkan rekomendasi seperti:
-      bookIndex                                          Book Name  \ Author              similarity_score
-2020       2021                      Majesty (American Royals, #2)    Katharine McGee     0.136359
-1698       1699  Katharine Parr, the Sixth Wife (Six Tudor Quee...    Alison Weir         0.104207
-0             1                  The Invisible Life of Addie LaRue    Victoria Schwab     0.000000
-1             2  The House in the Cerulean Sea (Cerulean Chroni...    T.J. Klune          0.000000
-2             3                                  Project Hail Mary    Andy Weir           0.000000
+Evaluasi dilakukan dengan mengukur seberapa relevan rekomendasi yang dihasilkan oleh sistem berdasarkan input buku tertentu. Sistem ini hanya menggunakan informasi dari judul dan penulis buku, tanpa mempertimbangkan data interaksi pengguna.
+Contoh hasil rekomendasi untuk buku "Glassheart":
+| bookIndex | Book Name                                             | Author          | similarity\_score |
+| --------- | ----------------------------------------------------- | --------------- | ----------------- |
+| 2021      | Majesty (American Royals, #2)                         | Katharine McGee | 0.1364            |
+| 1699      | Katharine Parr, the Sixth Wife (Six Tudor Queens, #6) | Alison Weir     | 0.1042            |
+| 1         | The Invisible Life of Addie LaRue                     | Victoria Schwab | 0.0000            |
+| 2         | The House in the Cerulean Sea                         | T.J. Klune      | 0.0000            |
+| 3         | Project Hail Mary                                     | Andy Weir       | 0.0000            |
         
-- Catatan: Nilai skor kemiripan yang relatif rendah (di bawah 0.2) menunjukkan bahwa fitur teks judul dan penulis yang digunakan dalam representasi TF-IDF mungkin kurang mencerminkan kesamaan semantik secara kuat. Hal ini menunjukkan perlunya pengayaan fitur, misalnya dengan menggunakan deskripsi buku atau genre.
+Metrik Evaluasi (Top-K = 5):
+(Seluruh nilai di bawah telah dibulatkan hingga 4 angka desimal untuk konsistensi pelaporan)
+- Precision@5: 0.1644
+Artinya, sekitar 16,44% dari buku yang direkomendasikan oleh sistem terbukti relevan (misalnya memiliki penulis yang sama atau tema yang serupa).
+Rumus:
+$$
+Precision@K = \frac{|\text{Rekomendasi yang relevan}|}{K}
+$$
+- Recall@5: 0.3509
+Artinya, sistem berhasil menemukan sekitar 35,09% dari total buku relevan hanya dalam 5 rekomendasi. Ini menunjukkan cakupan yang cukup baik.
+Rumus:
+$$
+Recall@K = \frac{|\text{Rekomendasi yang relevan}|}{|\text{Total item relevan}|}
+$$
+- NDCG@5 (Normalized Discounted Cumulative Gain): 0.3740
+Menunjukkan bahwa item yang relevan cenderung muncul di posisi atas rekomendasi, meskipun belum optimal. NDCG berkisar antara 0 (buruk) hingga 1 (sempurna).
+Rumus DCG@K:
+$$
+DCG@K = \sum_{i=1}^{K} \frac{rel_i}{\log_2(i+1)}
+$$
 
-Evaluasi untuk Content-Based Filtering (K=5):
-- Precision@K      : 0.16436238729068267
--- Artinya: Sistem berhasil menemukan sekitar 35% dari total buku relevan (berdasarkan asumsi pengarang sama) hanya dalam 5 rekomendasi.
--- Ini cukup bagus untuk model CBF karena sistem hanya menggunakan informasi konten (judul + penulis), bukan data pengguna.
-- Recall@K         : 0.3509025610141969
--- Artinya: Dari 5 rekomendasi yang diberikan, hanya sekitar 16% yang benar-benar relevan.
--- Ini menunjukkan bahwa sistem masih banyak memberikan rekomendasi yang tidak dianggap relevan (false positives).
-- NDCG@K           : 0.37398024903392013
--- Menunjukkan bahwa item relevan kadang muncul di urutan atas, tetapi belum konsisten.
--- Jika mendekati 1, berarti sistem benar-benar menempatkan item relevan di posisi atas, tapi 0.37 menunjukkan masih kurang optimal.
+Rumus NDCG@K:
+$$
+NDCG@K = \frac{DCG@K}{IDCG@K}
+$$
+
+Keterangan:
+- \( rel_i \) adalah relevansi item pada posisi ke-i
+- \( IDCG@K \) adalah nilai DCG ideal (jika semua item relevan ada di posisi teratas)
 
 Kelebihan:
-- Recall cukup tinggi → sistem bisa menemukan item relevan dalam top-5.
-- CBF mudah diterapkan tanpa data pengguna.
+- Cukup baik dalam menjangkau item relevan (recall tinggi).
+- Cocok untuk kasus di mana data pengguna terbatas atau item baru terus muncul.
 
 Kekurangan:
-- Precision rendah → sistem memberikan banyak rekomendasi yang tidak relevan.
-- NDCG sedang → urutan rekomendasi masih bisa diperbaiki.
+- Nilai precision relatif rendah, menandakan masih banyak rekomendasi yang tidak relevan.
+- Fitur konten yang digunakan (judul dan penulis saja) mungkin belum cukup kaya untuk menangkap makna semantik secara dalam.
+- Potensi over-specialization dan kurang serendipitas dalam rekomendasi.
 
 2. Collaborative Filtering
--- RMSE (Root Mean Squared Error): 1.4591
--- MAE (Mean Absolute Error): 1.2594
-- Dalam konteks skala rating 1–5, nilai ini menunjukkan prediksi model menyimpang ±1.25 poin dari rating sebenarnya. Ini dapat dianggap cukup tinggi, yang menunjukkan potensi perbaikan dengan teknik tambahan seperti tuning hyperparameter atau matrix factorization lanjutan.
+Evaluasi dilakukan dengan mengukur seberapa baik model memprediksi rating pengguna terhadap buku menggunakan data rating eksplisit. Dataset dibagi menjadi 80% data latih dan 20% data uji.
+
+Metrik Evaluasi:
+(Angka diambil langsung dari hasil notebook dan dibulatkan ke 4 desimal)
+- RMSE (Root Mean Squared Error): 1.4591
+Mengukur rata-rata kesalahan kuadrat dari prediksi rating. Semakin kecil nilainya, semakin baik. Dalam skala rating 1–5, nilai ini menunjukkan bahwa prediksi model menyimpang sekitar ±1.46 poin dari rating sebenarnya.
+- MAE (Mean Absolute Error): 1.2594
+Mengukur rata-rata kesalahan absolut dari prediksi. MAE biasanya lebih mudah diinterpretasikan daripada RMSE karena tidak menghukum error besar secara berlebihan.
 
 Kelebihan:
-- Mampu menangkap pola kompleks antar pengguna dan item.
-- Tidak memerlukan fitur konten dari buku.
+- Dapat menangkap pola preferensi laten yang kompleks antar pengguna.
+- Tidak memerlukan fitur dari buku (judul, genre, dll).
 
 Kekurangan:
-- Tidak bisa menangani item atau pengguna baru (cold start).
-- Kurang transparan dalam menjelaskan alasan rekomendasi.
+- Rentan terhadap masalah cold start (pengguna/item baru).
+- Rentan terhadap data sparsity — performa akan menurun jika data rating jarang atau tidak seimbang.
+- Kurang transparan karena sulit menjelaskan alasan suatu rekomendasi selain “pengguna serupa menyukainya”.
 
 Sistem rekomendasi yang dibangun dari dataset ini berhasil memberikan rekomendasi buku yang relevan bagi pengguna berdasarkan judul, author, dan rating. Dengan pengembangan lebih lanjut seperti penggunaan matrix factorization atau deep learning, kualitas rekomendasi bisa lebih ditingkatkan lagi.
