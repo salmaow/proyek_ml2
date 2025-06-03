@@ -84,12 +84,14 @@ print("Shape of Similarity matrix (sample):", cosine_sim_cb_sample.shape)
 ```
 - Fungsi Rekomendasi: Fungsi get_content_based_recommendations_sample(bookindex, N=10) dibuat untuk menghasilkan top-N rekomendasi. Fungsi ini mengambil index buku sebagai input, mencari buku tersebut dalam sampel, mendapatkan skor kemiripannya dengan semua buku lain, mengurutkannya, dan mengembalikan N buku teratas yang paling mirip beserta skor kesamaannya.
 - Hasil (Top-N Recommendation): Contoh output untuk buku 'The Invisible Life of Addie LaRue' dari sampel, N=5:
-      bookIndex                                          Book Name  \ Author             similarity_score  
-258         259                                            Gallant    Victoria Schwab    0.356272    
-1294       1295                Bridge of Souls (Cassidy Blake, #3)    Victoria Schwab    0.237166 
-592         593  The Fragile Threads of Power (Threads of Power...    Victoria Schwab    0.181362
-2248       2249                                     Invisible Girl    Lisa Jewell        0.108246
-1751       1752                                               Obit    Victoria Chang     0.104261 
+- 
+| bookIndex | Book Name \ Author                                             | similarity_score |
+|-----------|----------------------------------------------------------------|------------------|
+| 259       | Gallant \ Victoria Schwab                                      | 0.356272         |
+| 1295      | Bridge of Souls (Cassidy Blake, #3) \ Victoria Schwab          | 0.237166         |
+| 593       | The Fragile Threads of Power (Threads of Power...) \ Victoria Schwab | 0.181362         |
+| 2249      | Invisible Girl \ Lisa Jewell                                   | 0.108246         |
+| 1752      | Obit \ Victoria Chang                                          | 0.104261         |
 
 Kelebihan Pendekatan Content-Based:
 - Dapat merekomendasikan item baru yang belum memiliki interaksi pengguna (mengatasi sebagian masalah cold start untuk item).
@@ -113,11 +115,6 @@ Kekurangan Pendekatan Content-Based:
 - Menggunakan model SVD yang telah dilatih untuk memprediksi rating pengguna target terhadap buku-buku yang belum dirating tersebut.
 - Mengurutkan buku-buku tersebut berdasarkan prediksi rating (estimasi) secara menurun.
 - Mengembalikan N buku teratas beserta detailnya (ISBN, Judul, Penulis) dan prediksi ratingnya.
-- Hasil (Top-N Recommendation): Contoh output untuk userId: 65674, N=5:
-   bookIndex                                          Book Name  \ Author                    estimated_rating
-0       1704                     Your Brain is Always Listening    Daniel G. Amen            3.945382
-1       2241  If It Sounds Like a Quack...: A Journey to the...    Matthew Hongoltz-Hetling  3.745854
-2       2275  A Queen of Ruin (Deliciously Dark Fairytales, #4)    K.F. Breene               3.703566
                
 Kelebihan Pendekatan Collaborative Filtering (SVD):
 - Mampu menemukan pola preferensi yang kompleks dan tersembunyi dari data interaksi pengguna-item.
@@ -133,7 +130,7 @@ Kekurangan Pendekatan Collaborative Filtering (SVD):
 Evaluasi dilakukan dengan mengukur seberapa relevan rekomendasi yang dihasilkan oleh sistem berdasarkan input buku tertentu. Sistem ini hanya menggunakan informasi dari judul dan penulis buku, tanpa mempertimbangkan data interaksi pengguna.
 Contoh hasil rekomendasi untuk buku "Glassheart":
 
-| bookIndex | Book Name                                             | Author          | similarity\_score |
+| bookIndex | Book Name                                             | Author          | similarity_score |
 | --------- | ----------------------------------------------------- | --------------- | ----------------- |
 | 2021      | Majesty (American Royals, #2)                         | Katharine McGee | 0.1364            |
 | 1699      | Katharine Parr, the Sixth Wife (Six Tudor Queens, #6) | Alison Weir     | 0.1042            |
