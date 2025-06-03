@@ -132,6 +132,7 @@ Kekurangan Pendekatan Collaborative Filtering (SVD):
 1. Content-Based Filtering
 Evaluasi dilakukan dengan mengukur seberapa relevan rekomendasi yang dihasilkan oleh sistem berdasarkan input buku tertentu. Sistem ini hanya menggunakan informasi dari judul dan penulis buku, tanpa mempertimbangkan data interaksi pengguna.
 Contoh hasil rekomendasi untuk buku "Glassheart":
+
 | bookIndex | Book Name                                             | Author          | similarity\_score |
 | --------- | ----------------------------------------------------- | --------------- | ----------------- |
 | 2021      | Majesty (American Royals, #2)                         | Katharine McGee | 0.1364            |
@@ -145,26 +146,15 @@ Metrik Evaluasi (Top-K = 5):
 - Precision@5: 0.1644
 Artinya, sekitar 16,44% dari buku yang direkomendasikan oleh sistem terbukti relevan (misalnya memiliki penulis yang sama atau tema yang serupa).
 Rumus:
-$$
-Precision@K = \frac{|\text{Rekomendasi yang relevan}|}{K}
-$$
+Precision@K = (Jumlah rekomendasi yang relevan) / K
 - Recall@5: 0.3509
 Artinya, sistem berhasil menemukan sekitar 35,09% dari total buku relevan hanya dalam 5 rekomendasi. Ini menunjukkan cakupan yang cukup baik.
 Rumus:
-$$
-Recall@K = \frac{|\text{Rekomendasi yang relevan}|}{|\text{Total item relevan}|}
-$$
+Recall@K = (Jumlah rekomendasi yang relevan) / (Total item relevan)
 - NDCG@5 (Normalized Discounted Cumulative Gain): 0.3740
 Menunjukkan bahwa item yang relevan cenderung muncul di posisi atas rekomendasi, meskipun belum optimal. NDCG berkisar antara 0 (buruk) hingga 1 (sempurna).
-Rumus DCG@K:
-$$
-DCG@K = \sum_{i=1}^{K} \frac{rel_i}{\log_2(i+1)}
-$$
-
-Rumus NDCG@K:
-$$
-NDCG@K = \frac{DCG@K}{IDCG@K}
-$$
+Rumus:
+![Screenshot (1583)](https://github.com/user-attachments/assets/c27da8a3-fa9f-4962-bdab-c73889ddb0c5)
 
 Keterangan:
 - \( rel_i \) adalah relevansi item pada posisi ke-i
