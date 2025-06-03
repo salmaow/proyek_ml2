@@ -158,9 +158,8 @@ Kekurangan:
 - NDCG sedang → urutan rekomendasi masih bisa diperbaiki.
 
 2. Collaborative Filtering
-- Model SVD dievaluasi menggunakan dua metrik utama:
--- RMSE (Root Mean Squared Error): 1.4531
--- MAE (Mean Absolute Error): 1.2536
+-- RMSE (Root Mean Squared Error): 1.4591
+-- MAE (Mean Absolute Error): 1.2594
 - Dalam konteks skala rating 1–5, nilai ini menunjukkan prediksi model menyimpang ±1.25 poin dari rating sebenarnya. Ini dapat dianggap cukup tinggi, yang menunjukkan potensi perbaikan dengan teknik tambahan seperti tuning hyperparameter atau matrix factorization lanjutan.
 
 Kelebihan:
